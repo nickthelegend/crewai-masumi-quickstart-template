@@ -231,7 +231,7 @@ async def get_status(job_id: str):
         "job_id": job_id,
         "status": job["status"],
         "payment_status": job["payment_status"],
-        "result": job.get("result")
+        "result": job.get("result").raw
     }
 
 # ─────────────────────────────────────────────────────────────────────────────
