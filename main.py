@@ -227,11 +227,15 @@ async def get_status(job_id: str):
             logger.error(f"Error checking payment status: {str(e)}", exc_info=True)
             job["payment_status"] = "error"
 
+
+    result_data = job.get("result")
+    result = result_data.raw if result_data and hasattr(result_data, "raw") else None
+
     return {
         "job_id": job_id,
         "status": job["status"],
         "payment_status": job["payment_status"],
-        "result": job.get("result").raw
+        "result": result
     }
 
 # ─────────────────────────────────────────────────────────────────────────────
