@@ -19,6 +19,7 @@ load_dotenv(override=True)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 PAYMENT_SERVICE_URL = os.getenv("PAYMENT_SERVICE_URL")
 PAYMENT_API_KEY = os.getenv("PAYMENT_API_KEY")
+NETWORK = os.getenv("NETWORK")
 
 logger.info("Starting application with configuration:")
 logger.info(f"PAYMENT_SERVICE_URL: {PAYMENT_SERVICE_URL}")
@@ -106,7 +107,8 @@ async def start_job(data: StartJobRequest):
             #amounts=amounts,
             config=config,
             identifier_from_purchaser=data.identifier_from_purchaser,
-            input_data=data.input_data
+            input_data=data.input_data,
+            network=NETWORK
         )
         
         logger.info("Creating payment request...")
