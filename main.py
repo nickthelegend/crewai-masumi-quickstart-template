@@ -147,7 +147,8 @@ async def start_job(data: StartJobRequest):
             "sellerVkey": os.getenv("SELLER_VKEY"),
             "identifierFromPurchaser": data.identifier_from_purchaser,
             "amounts": amounts,
-            "input_hash": payment.input_hash
+            "input_hash": payment.input_hash,
+            "payByTime": payment_request["data"]["payByTime"],
         }
     except KeyError as e:
         logger.error(f"Missing required field in request: {str(e)}", exc_info=True)
