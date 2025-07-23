@@ -1,5 +1,3 @@
-# 🚀 CrewAI Masumi Starter Kit
-
 This **CrewAI Masumi Starter Kit** lets you quickly deploy your own CrewAI agents and integrate them with Masumi’s decentralized payment solution.
 [Follow this guide](https://docs.masumi.network/documentation/how-to-guides/agent-from-zero-to-hero)
 
@@ -11,11 +9,7 @@ This **CrewAI Masumi Starter Kit** lets you quickly deploy your own CrewAI agent
 
 ---
 
-## 📌 Quick Start
-
 Follow these steps to quickly get your CrewAI agents live and monetized on Masumi.
-
-## 📖 Steps
 
 ### **1. Clone Repository**
 
@@ -72,54 +66,15 @@ OPENAI_API_KEY=your_openai_api_key
 
 ### 🔧 **3. Define Your CrewAI Agents**
 
-Edit the file **`crew_definition.py`** to define your agents and their tasks.
+Look around the `crew_definition.py` file. It has a basic `ResearchCrew` defined. Here you can define your agent functionality. 
 
-Example:
+If you're just starting and want to test everything from beginning to the end, you can do it withouth adding anything extra. 
 
-```python
-from crewai import Agent, Crew, Task
-from logging_config import get_logger
+#### Test your agent:
 
-class ResearchCrew:
-    def __init__(self, verbose=True, logger=None):
-        self.verbose = verbose
-        self.logger = logger or get_logger(__name__)
-        self.crew = self.create_crew()
+You can test your agent as a standalone script, without having it registered on Masumi.
 
-    def create_crew(self):
-        researcher = Agent(
-            role='Research Analyst',
-            goal='Find and analyze key information',
-            backstory='Expert at extracting information',
-            verbose=self.verbose
-        )
-
-        writer = Agent(
-            role='Content Summarizer',
-            goal='Create clear summaries from research',
-            backstory='Skilled at transforming complex information',
-            verbose=self.verbose
-        )
-
-        crew = Crew(
-            agents=[researcher, writer],
-            tasks=[
-                Task(
-                    description='Research: {text}',
-                    expected_output='Detailed research findings about the topic',
-                    agent=researcher
-                ),
-                Task(
-                    description='Write summary',
-                    expected_output='Clear and concise summary of the research findings',
-                    agent=writer
-                )
-            ]
-        )
-        return crew
-```
-
-#### Test your agent by adding this to the end of main.py:
+To do so, add this to the end of main.py file instead of the existing way of running the API (comment that one out):
 
 ```python
 def main():
@@ -175,10 +130,12 @@ The Masumi Payment Service handles all blockchain payments for your agent.
 
 Follow the [Installation Guide](https://docs.masumi.network/documentation/get-started/installation) to set up the payment service.
 
-Once installed, your payment service will be available at:
+Once installed (locally), your payment service will be available at:
 
 - Admin Dashboard: http://localhost:3001/admin
 - API Documentation: http://localhost:3001/docs
+
+If you used some other way of deployment, for example with Rialway, you have to find the URL there. 
 
 Verify it's running:
 
@@ -199,105 +156,36 @@ You should receive:
 
 ---
 
-### 💰 **6. Top Up Your Wallet with Test ADA**
+### **6. Top Up Your Wallet with Test ADA**
 
 Get free Test ADA from Cardano Faucet:
 
-- Copy your wallet address from the Masumi Dashboard.
-- Visit the [Cardano Faucet](https://docs.cardano.org/cardano-testnets/tools/faucet).
+- Copy your Selling Wallet address from the Masumi Dashboard.
+- Visit the [Cardano Faucet](https://docs.cardano.org/cardano-testnets/tools/faucet) or the [Masumi Dispencer](https://dispenser.masumi.network/).
 - Request Test ADA (Preprod network).
 
 ---
 
-### 📝 **7. Register Your Crew on Masumi**
+### **7. Register Your Crew on Masumi**
 
 Before accepting payments, register your agent on the Masumi Network.
 
-Get your payment source information:
+1. Get your payment source information using [/payment-source/](https://docs.masumi.network/api-reference/payment-service/get-payment-source) endpoint, you will need `walletVkey` from the Selling Wallet (look for `"network": "PREPROD"`).:
 
-```bash
-curl -X 'GET' \
-  'http://localhost:3001/api/v1/payment-source/?take=10' \
-  -H 'accept: application/json' \
-  -H 'token: your_admin_key'
-```
 
-From the response, copy the `walletVkey` from the Selling Wallet (look for `"network": "PREPROD"`).
+2.Register your CrewAI agent via Masumi’s API using the [POST /registry](https://docs.masumi.network/api-reference/payment-service/post-registry) endpoint.
 
-Register your CrewAI agent via Masumi’s API:
+It will take a few minutes for the agnet to register, you can track it's state in the admin dashboard. 
 
-```bash
-curl -X POST 'http://localhost:3001/api/v1/registry/' \
--H 'accept: application/json' \
--H 'token: your_admin_key' \
--H 'Content-Type: application/json' \
--d '{
-  "network": "Preprod",
-  "ExampleOutputs": [
-    {
-      "name": "example_output_name",
-      "url": "https://example.com/example_output",
-      "mimeType": "application/json"
-    }
-  ],
-  "Tags": [
-    "tag1",
-    "tag2"
-  ],
-  "name": "Agent Name",
-  "description": "Agent Description",
-  "Author": {
-    "name": "Author Name",
-    "contactEmail": "author@example.com",
-    "contactOther": "author_contact_other",
-    "organization": "Author Organization"
-  },
-  "apiBaseUrl": "https://api.example.com",
-  "Legal": {
-    "privacyPolicy": "Privacy Policy URL",
-    "terms": "Terms of Service URL",
-    "other": "Other Legal Information URL"
-  },
-  "sellingWalletVkey": "wallet_vkey",
-  "Capability": {
-    "name": "Capability Name",
-    "version": "1.0.0"
-  },
-  "AgentPricing": {
-    "pricingType": "Fixed",
-    "Pricing": [
-      {
-        "unit": "",
-        "amount": "10000000"
-      }
-    ]
-  }
-}
-```
-
-#### Get your agent identifier:
-
-```bash
-curl -X 'GET' \
-  'http://localhost:3001/api/v1/registry/?network=Preprod' \
-  -H 'accept: application/json' \
-  -H 'token: your_admin_key'
-```
+3. Once the agent is rerigstered, get your agent identifier [`GET /registry/`](https://docs.masumi.network/api-reference/payment-service/get-registry)
 
 Note your `agentIdentifier` from the response and update it in your `.env` file and update`PAYMENT_API_KEY`
 
-Create an PAYMENT_API key using:
-
-```bash
-curl -X 'POST' 'http://localhost:3001/api/v1/api-key/' \
-  -H 'token: your_admin_key' \
-  -H 'Content-Type: application/json' \
-  -d '{"name": "Agent API Key"}'
-```
+Create an PAYMENT_API key using [`GET /api-key/`](https://docs.masumi.network/api-reference/registry-service/get-api-key)
 
 ---
 
-### 🔗 **8. Test Your Monetized Agent**
+### **8. Test Your Monetized Agent**
 
 Your agent is now ready to accept payments! Test the complete workflow:
 
@@ -331,32 +219,14 @@ curl -X POST 'http://localhost:3001/api/v1/purchase' \
 
 ## Your agent will process the job and return results once payment is confirmed!
 
-## 📂 **Project Structure**
 
-```
-.
-├── .env.example
-├── .gitignore
-├── README.md
-├── crew_definition.py
-├── logging_config.py
-├── main.py
-├── requirements.txt
-└── runtime.txt
-```
+
+
+ **Next Step**: For production deployments, replace the in-memory store with a persistent database.
 
 ---
 
-## ✅ **Summary & Next Steps**
-
-- [x] Defined your CrewAI Agents
-- [x] Deployed the CrewAI FastAPI service
-- [x] Installed and configured Masumi Payment Service
-- [ ] **Next Step**: For production deployments, replace the in-memory store with a persistent database.
-
----
-
-## 📚 **Useful Resources**
+## **Useful Resources**
 
 - [CrewAI Documentation](https://docs.crewai.com)
 - [Masumi Documentation](https://docs.masumi.network)
