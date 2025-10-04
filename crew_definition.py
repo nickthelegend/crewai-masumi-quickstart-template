@@ -36,10 +36,18 @@ async def call_mcp_server_async(html_content: str, filename: str = "resume.pdf")
                     }
                 )
                 
-                if result.content:
-                    return f"PDF generated successfully: {result.content[0].text if result.content else 'No content returned'}"
+                if result.content and len(result.content) > 0:
+                    content = result.content[0].text
+                    # Extract URL from the JSON response
+                    import json
+                    try:
+                        data = json.loads(content)
+                        pdf_url = data.get('url', 'No URL found')
+                        return f"PDF generated successfully: {pdf_url}"
+                    except json.JSONDecodeError:
+                        return f"PDF generated: {content}"
                 else:
-                    return "PDF generation completed but no URL returned"
+                    return "PDF generation completed but no content returned"
                     
     except Exception as e:
         return f"Error calling MCP server: {str(e)}"
@@ -68,8 +76,8 @@ class ResumeCrew:
 
         pdf_converter = Agent(
             role='PDF Converter',
-            goal='Convert HTML resumes to PDF format using MCP server',
-            backstory='Specialist in document conversion and file processing using external APIs. Uses call_mcp_server function to convert HTML to PDF.',
+            goal='Convert HTML resumes to PDF format using Smithery MCP server',
+            backstory='Expert in document conversion using the Smithery MCP server. Converts HTML content to PDF files and returns download URLs from Google Cloud Storage.',
             verbose=self.verbose,
             llm=deepseek_llm
         )
@@ -85,8 +93,8 @@ class ResumeCrew:
                     agent=resume_generator
                 ),
                 Task(
-                    description='Convert the generated HTML resume to PDF format by calling the MCP server. Use the call_mcp_server function with the HTML content from the previous task.',
-                    expected_output='PDF conversion result with download URL',
+                    description='Convert the HTML resume from the previous task to PDF format using the Smithery MCP server. Call the call_mcp_server function with the HTML content and return the PDF download URL.',
+                    expected_output='PDF download URL from Google Cloud Storage',
                     agent=pdf_converter
                 )
             ]
