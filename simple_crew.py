@@ -118,9 +118,8 @@ def upload_to_pinata(pdf_url: str, token_name: str) -> str:
         if response.status_code == 200:
             result = response.json()
             ipfs_hash = result.get('IpfsHash')
-            # Use ipfs:// format now that validation is removed
-            ipfs_url = f"ipfs://{ipfs_hash}"
-            return ipfs_url
+            # Return just the CID without ipfs:// to stay under 64 bytes
+            return ipfs_hash
         else:
             return f"Error uploading to Pinata: {response.status_code} - {response.text}"
             
