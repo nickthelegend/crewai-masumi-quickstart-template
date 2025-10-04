@@ -6,7 +6,7 @@ from fastapi import FastAPI, Query, HTTPException
 from pydantic import BaseModel, Field, field_validator
 from masumi.config import Config
 from masumi.payment import Payment, Amount
-from crew_definition import ResearchCrew
+from crew_definition import ResumeCrew
 from logging_config import setup_logging
 
 # Configure logging
@@ -26,8 +26,8 @@ logger.info(f"PAYMENT_SERVICE_URL: {PAYMENT_SERVICE_URL}")
 
 # Initialize FastAPI
 app = FastAPI(
-    title="API following the Masumi API Standard",
-    description="API for running Agentic Services tasks with Masumi payment integration",
+    title="Resume Generation Service - Masumi API Standard",
+    description="Professional resume generation service that creates HTML resumes, converts them to PDF, and mints them as NFTs. Integrated with Masumi payment system.",
     version="1.0.0"
 )
 
@@ -55,9 +55,9 @@ class StartJobRequest(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "identifier_from_purchaser": "example_purchaser_123",
+                "identifier_from_purchaser": "resume_job_123",
                 "input_data": {
-                    "text": "Write a story about a robot learning to paint"
+                    "text": "Name: Alice Johnson\nEmail: alice@example.com\nPhone: (555) 123-4567\nLocation: San Francisco, CA\n\nProfessional Summary:\nSenior Software Engineer with 5+ years developing web applications using Python, JavaScript, and React.\n\nWork Experience:\n- Senior Software Engineer at TechCorp (2021-2024)\n  * Led development of microservices architecture\n  * Improved system performance by 40%\n  * Mentored junior developers\n\nEducation:\n- Bachelor of Science in Computer Science\n  University of Technology (2015-2019)\n\nSkills:\nPython, JavaScript, React, Node.js, Docker, AWS, PostgreSQL, Git"
                 }
             }
         }
@@ -68,12 +68,12 @@ class ProvideInputRequest(BaseModel):
 # ─────────────────────────────────────────────────────────────────────────────
 # CrewAI Task Execution
 # ─────────────────────────────────────────────────────────────────────────────
-async def execute_crew_task(input_data: str) -> str:
-    """ Execute a CrewAI task with Research and Writing Agents """
-    logger.info(f"Starting CrewAI task with input: {input_data}")
-    crew = ResearchCrew(logger=logger)
-    result = crew.crew.kickoff(inputs={"text": input_data})
-    logger.info("CrewAI task completed successfully")
+async def execute_crew_task(input_data: dict) -> str:
+    """ Execute a CrewAI task with Resume Generation, PDF Conversion, and NFT Minting Agents """
+    logger.info(f"Starting ResumeCrew task with input: {input_data}")
+    crew = ResumeCrew(logger=logger)
+    result = crew.crew.kickoff(inputs=input_data)
+    logger.info("ResumeCrew task completed successfully")
     return result
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -248,7 +248,7 @@ async def get_status(job_id: str):
 async def check_availability():
     """ Checks if the server is operational """
 
-    return {"status": "available", "type": "masumi-agent", "message": "Server operational."}
+    return {"status": "available", "type": "masumi-agent", "message": "Resume Generation Service is ready to create professional resumes, convert to PDF, and mint NFTs."}
     # Commented out for simplicity sake but its recommended to include the agentIdentifier
     #return {"status": "available","agentIdentifier": os.getenv("AGENT_IDENTIFIER"), "message": "The server is running smoothly."}
 
@@ -259,18 +259,32 @@ async def check_availability():
 async def input_schema():
     """
     Returns the expected input schema for the /start_job endpoint.
-    Fulfills MIP-003 /input_schema endpoint.
+    Fulfills MIP-003 /input_schema endpoint for Resume Generation Service.
     """
     return {
         "input_data": [
             {
                 "id": "text",
-                "type": "string",
-                "name": "Task Description",
+                "type": "textarea",
+                "name": "Resume Information",
                 "data": {
-                    "description": "The text input for the AI task",
-                    "placeholder": "Enter your task description here"
-                }
+                    "description": "Provide your resume information including name, contact details, work experience, education, and skills. The system will generate a professional HTML resume, convert it to PDF, and mint it as an NFT.",
+                    "placeholder": "Name: John Smith\nEmail: john.smith@email.com\nPhone: (555) 123-4567\nLocation: New York, NY\n\nProfessional Summary:\nExperienced software engineer with 5+ years...\n\nWork Experience:\n- Senior Software Engineer at TechCorp (2021-2024)\n  * Led development of microservices\n  * Improved performance by 40%\n\nEducation:\n- Bachelor of Science in Computer Science\n  University of Technology (2015-2019)\n\nSkills:\nPython, JavaScript, React, Node.js, Docker, AWS"
+                },
+                "validations": [
+                    {
+                        "validation": "min",
+                        "value": "50"
+                    },
+                    {
+                        "validation": "max",
+                        "value": "5000"
+                    },
+                    {
+                        "validation": "format",
+                        "value": "nonempty"
+                    }
+                ]
             }
         ]
     }
