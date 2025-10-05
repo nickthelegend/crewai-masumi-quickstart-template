@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field, field_validator
 from masumi.config import Config
 from masumi.payment import Payment, Amount
 from crew_definition import ResumeCrew, call_mcp_server, mint_nft
-from simple_crew import generate_resume_html, upload_to_pinata
+from simple_crew import generate_resume_html, upload_to_pinata, call_mcp_server_async, mint_nft_async
 from logging_config import setup_logging
 
 # Configure logging
@@ -85,7 +85,7 @@ async def execute_crew_task(input_data: dict) -> dict:
         html_content = generate_resume_html(resume_text)
         
         logger.info("Step 2: Converting to PDF via MCP server...")
-        pdf_result = call_mcp_server(html_content, "resume.pdf")
+        pdf_result = await call_mcp_server_async(html_content, "resume.pdf")
         
         # Extract PDF URL from result
         pdf_url = None
@@ -99,7 +99,7 @@ async def execute_crew_task(input_data: dict) -> dict:
             ipfs_cid = upload_to_pinata(pdf_url, short_token_name)
             
             logger.info("Step 4: Minting NFT from IPFS metadata...")
-            nft_result = mint_nft(ipfs_cid, short_token_name)
+            nft_result = await mint_nft_async(ipfs_cid, short_token_name)
             
             result = {
                 "html_length": len(html_content),
