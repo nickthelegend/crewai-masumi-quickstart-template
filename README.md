@@ -1,15 +1,61 @@
-This **CrewAI Masumi Starter Kit** lets you quickly deploy your own CrewAI agents and integrate them with Masumi’s decentralized payment solution.
-[Follow this guide](https://docs.masumi.network/documentation/how-to-guides/agent-from-zero-to-hero)
+# Resume NFT Generator - CrewAI Masumi Integration
 
-**Key benefits:**
+**Professional Resume Creation & Blockchain Certification Service**
 
-- Simple setup: Just clone, configure, and deploy.
-- Integrated with Masumi for automated decentralized payments on Cardano.
-- Production-ready API built with FastAPI.
+This intelligent agent transforms raw resume information into professional, certified digital assets through a sophisticated multi-agent workflow powered by remote MCP (Model Context Protocol) servers.
+
+## 🎥 Video Walkthroughs
+
+📹 **[Complete Setup & Deployment Guide](#)** *(Video coming soon)*  
+📹 **[Live Demo: Resume to NFT Process](#)** *(Video coming soon)*
+
+## 🚀 Live Deployment
+
+**✅ Currently Deployed on Masumi Network**
+
+![Deployed Service](images/image.png)
+![Service Dashboard](images/image2.png)
+
+🔗 **Agent Explorer**: [View on Masumi Network](https://explorer.masumi.network/agents/721)  
+🆔 **Agent ID**: `7e8bdaf2b2b919a3a4b94002cafb50086c0c845fe535d07a77ab7f776b875de2ac4dfd3d0df7c38be2a97be0f33c0f71e34f67b67e8e7e75c3f203c6`
+
+## 🤖 Multi-Agent Architecture
+
+**Three Specialized Agents Working with Remote MCP Servers:**
+
+1. **📝 Resume Generator Agent** - Creates professional HTML resumes with modern styling
+2. **📄 PDF Converter Agent** - Uses **Smithery AI MCP Server** `html_to_pdf` tool for high-quality conversion
+3. **🎨 NFT Minter Agent** - Leverages **Smithery AI MCP Server** `mint_nft` tool for Cardano blockchain minting
+
+### 🔧 MCP Server Integration
+
+**Remote MCP Tools Powered by Smithery AI:**
+- **`html_to_pdf`**: Professional server-side PDF rendering
+- **`mint_nft`**: Cardano blockchain NFT creation
+- **Authentication**: Secure API key and profile-based access
+- **Reliability**: Production-grade MCP server infrastructure
+
+**Technical Workflow:**
+```
+Resume Text → HTML Generation → MCP html_to_pdf → PDF Creation
+     ↓
+IPFS Upload → Metadata Storage → MCP mint_nft → Cardano NFT
+```
+
+## 💼 Key Features
+
+- **🎯 Professional Resume Generation**: AI-powered HTML formatting
+- **📱 PDF Conversion**: High-quality server-side rendering via MCP
+- **🔗 Blockchain Certification**: Immutable NFTs on Cardano
+- **☁️ Decentralized Storage**: IPFS integration via Pinata
+- **💰 Automated Payments**: Masumi network integration
+- **🛡️ MIP-003 Compliant**: Standardized agentic service API
 
 ---
 
-Follow these steps to quickly get your CrewAI agents live and monetized on Masumi.
+## 🛠 Quick Setup Guide
+
+Follow these steps to deploy your own Resume NFT Generator with MCP server integration:
 
 ### **1. Clone Repository**
 
@@ -56,41 +102,56 @@ PAYMENT_AMOUNT=10000000
 PAYMENT_UNIT=lovelace
 SELLER_VKEY=your_selling_wallet_vkey
 
-# OpenAI API
+# Smithery AI MCP Server (Required)
+SMITHERY_API_KEY=your_smithery_api_key
+SMITHERY_PROFILE=your_smithery_profile
+
+# Pinata IPFS (Required)
+PINATA_JWT=your_pinata_jwt_token
+
+# OpenAI API (Optional)
 OPENAI_API_KEY=your_openai_api_key
 ```
 
-#### Get your OpenAI API key from the [OpenAI Developer Portal](https://platform.openai.com/api-keys)
+#### Required API Keys:
+- **Smithery AI**: Get API key from [Smithery AI](https://smithery.ai) for MCP server access
+- **Pinata IPFS**: Get JWT token from [Pinata](https://pinata.cloud) for metadata storage
+- **OpenAI**: Optional, get from [OpenAI Developer Portal](https://platform.openai.com/api-keys)
 
 ---
 
 ### **3. Define Your CrewAI Agents**
 
-Look around the `crew_definition.py` file. It has a basic `ResearchCrew` defined. Here you can define your agent functionality. 
+The `crew_definition.py` file contains the **Resume NFT Generator** with three specialized agents that work with remote MCP servers.
 
-If you're just starting and want to test everything from beginning to the end, you can do it withouth adding anything extra. 
+**Key Components:**
+- **ResumeCrew**: Multi-agent system for resume processing
+- **MCP Integration**: Functions for calling Smithery AI's remote MCP server
+- **Tools**: `html_to_pdf` and `mint_nft` tools via MCP protocol
 
-#### Test your agent:
+#### Test the Resume Generator:
 
-You can test your agent as a standalone script, without having it registered on Masumi.
-
-To do so, add this to the end of main.py file instead of the existing way of running the API (comment that one out):
+Test the complete workflow without payments using `simple_crew.py`:
 
 ```python
-def main():
-    input_data = {"text": "The impact of AI on the job market"}
-    crew = ResearchCrew()
-    result = crew.crew.kickoff(input_data)
-    print("\nCrew Output:\n", result)
+from simple_crew import SimpleResumeCrew
+import asyncio
 
-if __name__ == "__main__":
-    main()
+async def test():
+    crew = SimpleResumeCrew()
+    input_data = {
+        "text": "Name: John Smith\nEmail: john@example.com\nExperience: Software Engineer..."
+    }
+    result = await crew.run(input_data)
+    print(f"Resume NFT created: {result}")
+
+asyncio.run(test())
 ```
 
 #### Run it
 
-```python
-python main.py
+```bash
+python test_resume.py
 ```
 
 ---
@@ -170,10 +231,10 @@ Get free Test ADA from Cardano Faucet:
 
 Before accepting payments, register your agent on the Masumi Network.
 
-1. Get your payment source information using [/payment-source/](https://docs.masumi.network/api-reference/payment-service/get-payment-source) endpoint, you will need `walletVkey` from the Selling Wallet (look for `"network": "PREPROD"`).:
+1. Get your payment source information using [/payment-source/](https://docs.masumi.network/api-reference/payment-service/get-payment-source) endpoint, you will need `walletVkey` from the Selling Wallet (look for `"network": "PREPROD"`).
 
 
-2.Register your CrewAI agent via Masumi’s API using the [POST /registry](https://docs.masumi.network/api-reference/payment-service/post-registry) endpoint.
+2.Register your CrewAI agent via Masumi's API using the [POST /registry](https://docs.masumi.network/api-reference/payment-service/post-registry) endpoint.
 
 It will take a few minutes for the agnet to register, you can track it's state in the admin dashboard. 
 
@@ -195,8 +256,10 @@ Start a paid job:
 curl -X POST "http://localhost:8000/start_job" \
 -H "Content-Type: application/json" \
 -d '{
-    "identifier_from_purchaser": "<put HEX of even character>",
-    "input_data": {"text": "artificial intelligence trends"}
+    "identifier_from_purchaser": "resume-job-001",
+    "input_data": {
+        "text": "Name: Alice Johnson\nEmail: alice@example.com\nPhone: (555) 123-4567\n\nProfessional Summary:\nExperienced software engineer with 5+ years...\n\nWork Experience:\n- Senior Developer at TechCorp (2021-2024)\n\nEducation:\n- BS Computer Science, MIT (2019)\n\nSkills:\nPython, JavaScript, React, AWS"
+    }
 }'
 ```
 
@@ -226,9 +289,24 @@ curl -X POST 'http://localhost:3001/api/v1/purchase' \
 
 ---
 
-## **Useful Resources**
+## **Documentation & Resources**
 
-- [CrewAI Documentation](https://docs.crewai.com)
-- [Masumi Documentation](https://docs.masumi.network)
-- [FastAPI](https://fastapi.tiangolo.com)
-- [Cardano Testnet Faucet](https://docs.cardano.org/cardano-testnets/tools/faucet)
+### 📚 Project Documentation
+- [FULL_GUIDE.md](FULL_GUIDE.md) - Complete setup and usage guide
+- [TERMS_OF_USE.md](TERMS_OF_USE.md) - Service terms and conditions
+- [PRIVACY_POLICY.md](PRIVACY_POLICY.md) - Privacy and data handling
+- [SUPPORT_DOCUMENTATION.md](SUPPORT_DOCUMENTATION.md) - Troubleshooting and FAQ
+
+### 🔗 External Resources
+- [Masumi Documentation](https://docs.masumi.network) - Payment network integration
+- [Smithery AI](https://smithery.ai) - MCP server and tools
+- [Pinata IPFS](https://pinata.cloud) - Decentralized storage
+- [FastAPI](https://fastapi.tiangolo.com) - API framework
+- [Cardano Testnet Faucet](https://docs.cardano.org/cardano-testnets/tools/faucet) - Test ADA
+
+### 🛠 Technical Specifications
+- **MCP Protocol**: Model Context Protocol for remote tool execution
+- **Blockchain**: Cardano (Preprod/Mainnet)
+- **Storage**: IPFS via Pinata for metadata
+- **Payment**: Masumi decentralized network
+- **API Standard**: MIP-003 compliant endpoints
