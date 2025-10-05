@@ -6,8 +6,23 @@ This intelligent agent transforms raw resume information into professional, cert
 
 ## 🎥 Video Walkthroughs
 
-📹 **[Complete Setup & Deployment Guide](#)** *(Video coming soon)*  
-📹 **[Live Demo: Resume to NFT Process](#)** *(Video coming soon)*
+📹 **[Complete Deployment & Running Masumi Agent](#)** 
+https://github.com/user-attachments/assets/3e910811-4861-44a2-ac93-d5d76d8010dc
+
+📹 **[Output of Agent](#)**
+https://github.com/user-attachments/assets/c93435d7-87a3-42db-a815-67a1bb9305d0
+
+
+
+
+📹 **[TESTS RUNNING](#)** 
+https://github.com/user-attachments/assets/f6b3cd8b-d6ae-41ef-a81e-4601f4112551
+
+📹 **[MCP SERVER TOOLS](#)** 
+https://github.com/user-attachments/assets/51179c11-1885-4fbe-8ae0-77fdc49b34fa
+
+
+
 
 ## 🚀 Live Deployment
 
