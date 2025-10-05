@@ -204,9 +204,12 @@ async def start_job(data: StartJobRequest):
         )
     except Exception as e:
         logger.error(f"Error in start_job: {str(e)}", exc_info=True)
+        logger.error(f"Agent identifier: {os.getenv('AGENT_IDENTIFIER')}")
+        logger.error(f"Payment service URL: {PAYMENT_SERVICE_URL}")
+        logger.error(f"Payment API key exists: {bool(PAYMENT_API_KEY)}")
         raise HTTPException(
             status_code=400,
-            detail="Input_data or identifier_from_purchaser is missing, invalid, or does not adhere to the schema."
+            detail=f"Error in start_job: {str(e)}"
         )
 
 # ─────────────────────────────────────────────────────────────────────────────
