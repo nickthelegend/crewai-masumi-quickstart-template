@@ -6,7 +6,8 @@ from fastapi import FastAPI, Query, HTTPException
 from pydantic import BaseModel, Field, field_validator
 from masumi.config import Config
 from masumi.payment import Payment, Amount
-from crew_definition import ResumeCrew
+from crew_definition import ResumeCrew, call_mcp_server, mint_nft
+from simple_crew import generate_resume_html, upload_to_pinata
 from logging_config import setup_logging
 
 # Configure logging
@@ -66,15 +67,60 @@ class ProvideInputRequest(BaseModel):
     job_id: str
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CrewAI Task Execution
+# Resume Generation Task Execution (Using Working Functions from crew_definition)
 # ─────────────────────────────────────────────────────────────────────────────
-async def execute_crew_task(input_data: dict) -> str:
-    """ Execute a CrewAI task with Resume Generation, PDF Conversion, and NFT Minting Agents """
-    logger.info(f"Starting ResumeCrew task with input: {input_data}")
-    crew = ResumeCrew(logger=logger)
-    result = crew.crew.kickoff(inputs=input_data)
-    logger.info("ResumeCrew task completed successfully")
-    return result
+async def execute_crew_task(input_data: dict) -> dict:
+    """Execute resume generation workflow using functions from crew_definition"""
+    try:
+        resume_text = input_data.get("text", "")
+        
+        # Extract name for token name
+        name = "Resume"
+        for line in resume_text.split('\n'):
+            if line.strip().startswith("Name:"):
+                name = line.replace("Name:", "").strip().replace(" ", "_")
+                break
+        
+        logger.info("Step 1: Generating HTML resume...")
+        html_content = generate_resume_html(resume_text)
+        
+        logger.info("Step 2: Converting to PDF via MCP server...")
+        pdf_result = call_mcp_server(html_content, "resume.pdf")
+        
+        # Extract PDF URL from result
+        pdf_url = None
+        if "https://" in pdf_result:
+            pdf_url = pdf_result.split("https://")[1].split()[0]
+            pdf_url = "https://" + pdf_url
+        
+        if pdf_url:
+            logger.info("Step 3: Uploading metadata to IPFS...")
+            short_token_name = f"{name[:8]}_NFT"
+            ipfs_cid = upload_to_pinata(pdf_url, short_token_name)
+            
+            logger.info("Step 4: Minting NFT from IPFS metadata...")
+            nft_result = mint_nft(ipfs_cid, short_token_name)
+            
+            result = {
+                "html_length": len(html_content),
+                "pdf_result": pdf_result,
+                "ipfs_cid": ipfs_cid,
+                "nft_result": nft_result,
+                "status": "completed"
+            }
+        else:
+            result = {
+                "html_length": len(html_content),
+                "pdf_result": pdf_result,
+                "status": "pdf_failed"
+            }
+        
+        logger.info(f"Resume workflow completed: {result}")
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error in resume workflow: {str(e)}")
+        return {"error": str(e), "status": "failed"}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 1) Start Job (MIP-003: /start_job)
@@ -177,12 +223,10 @@ async def handle_payment_status(job_id: str, payment_id: str) -> None:
 
         # Execute the AI task
         result = await execute_crew_task(jobs[job_id]["input_data"])
-        result_dict = result.json_dict
-        logger.info(f"Crew task completed for job {job_id}")
+        logger.info(f"Resume generation completed for job {job_id}")
         
         # Mark payment as completed on Masumi
-        # Use a shorter string for the result hash
-        await payment_instances[job_id].complete_payment(payment_id, result_dict)
+        await payment_instances[job_id].complete_payment(payment_id, result)
         logger.info(f"Payment completed for job {job_id}")
 
         # Update job status
@@ -232,7 +276,7 @@ async def get_status(job_id: str):
 
 
     result_data = job.get("result")
-    result = result_data.raw if result_data and hasattr(result_data, "raw") else None
+    result = result_data if isinstance(result_data, dict) else None
 
     return {
         "job_id": job_id,
