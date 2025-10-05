@@ -256,7 +256,7 @@ Start a paid job:
 curl -X POST "http://localhost:8000/start_job" \
 -H "Content-Type: application/json" \
 -d '{
-    "identifier_from_purchaser": "resume-job-001",
+    "identifier_from_purchaser": "726573756d653031",
     "input_data": {
         "text": "Name: Alice Johnson\nEmail: alice@example.com\nPhone: (555) 123-4567\n\nProfessional Summary:\nExperienced software engineer with 5+ years...\n\nWork Experience:\n- Senior Developer at TechCorp (2021-2024)\n\nEducation:\n- BS Computer Science, MIT (2019)\n\nSkills:\nPython, JavaScript, React, AWS"
     }
